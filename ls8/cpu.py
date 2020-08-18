@@ -12,7 +12,7 @@ class CPU:
         self.reg[7] = 0xF0
         self.running = True
         self.PC = 0
-        self.FL = [False] * 8
+        self.FL = 0b00000000
         
     def ram_read(self, address):
         return self.ram[address]
@@ -42,7 +42,7 @@ class CPU:
                         self.ram[address] = int(num, 2)
                         address += 1
         except FileNotFoundError:
-            print(f'{sys.argv[0]}: {sys.argv[1]} not found')
+            print( 'not found')
 
         # For now, we've just hardcoded a program:
 
@@ -71,13 +71,13 @@ class CPU:
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
         elif op == "CMP":
-            self.FL = 0x00
+            self.FL &= 0b00000000
             if self.reg[reg_a] == self.reg[reg_b]:
-                self.FL = self.FL | 0b00000001
+                self.FL = 0b00000001
             if self.reg[reg_a] < self.reg[reg_b]:
-                self.FL = self.FL | 0b00000100
+                self.FL = 0b00000100
             if self.reg[reg_a] > self.reg[reg_b]:
-                self.FL = self.FL | 0b00000010
+                self.FL = 0b00000010
 
         else:
             raise Exception("Unsupported ALU operation")
@@ -152,13 +152,13 @@ class CPU:
                 self.PC = self.reg[self.ram[self.PC + 1]]
             #JEQ instruction
             if self.ram[self.PC] == JEQ:
-                if self.FL[7] is True:
+                if self.FL & 1 is 1:
                     self.PC = self.reg[self.ram[self.PC + 1]]
                 else:
                     self.PC += 2
             #JNE instruction
             if self.ram[self.PC] == JNE:
-                if self.FL[7] is False:
+                if self.FL & 1 is 0:
                     self.PC = self.reg[self.ram[self.PC + 1]]
                 else:
                     self.PC += 2
